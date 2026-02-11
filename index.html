@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Permanent+Marker&family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tsparticles@3/tsparticles.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 
     <style>
         /* ==================================================
@@ -476,7 +476,7 @@
                     opts: [
                         { text: "A standard vanilla latte", correct: false },
                         { text: "Just black coffee", correct: false },
-                        { text: "A 12-ounce cappuccino with exactly 3 shots of espresso", correct: true }
+                        { text: "A 16-ounce cappuccino with exactly 3 shots of espresso", correct: true }
                     ]
                 },
                 {
@@ -653,47 +653,81 @@
                ------------------------------------------------ */
             function initAct3Hearts() {
                 if (act3HeartsInitialized) return;
-                tsParticles.load('act3-hearts', {
-                    fullScreen: { enable: false },
-                    detectRetina: true,
-                    fpsLimit: 60,
+                const heartsHost = document.getElementById('act3-hearts');
+                if (!heartsHost) return;
+                heartsHost.innerHTML = '';
+
+                const heartSvg = encodeURIComponent(
+                    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 29.6"><path fill="#f06aa5" d="M23.6,0c-3,0-5.4,1.7-7.6,4.4C13.8,1.7,11.4,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.2,16,21.2,16,21.2s16-12,16-21.2C32,3.8,28.2,0,23.6,0z"/></svg>'
+                );
+                const heartDataUrl = `data:image/svg+xml;charset=utf-8,${heartSvg}`;
+
+                particlesJS('act3-hearts', {
                     particles: {
-                        number: { value: 30, density: { enable: true, width: 800, height: 1000 } },
-                        color: { value: ['#f05d97', '#f58db2', '#f3a8c2'] },
+                        number: {
+                            value: 26,
+                            density: {
+                                enable: true,
+                                value_area: 900
+                            }
+                        },
+                        color: {
+                            value: '#f58db2'
+                        },
                         shape: {
-                            type: 'character',
-                            options: {
-                                character: {
-                                    value: ['♥'],
-                                    font: 'Verdana',
-                                    style: '',
-                                    weight: '500',
-                                    fill: true
-                                }
+                            type: 'image',
+                            image: {
+                                src: heartDataUrl,
+                                width: 32,
+                                height: 30
                             }
                         },
                         opacity: {
-                            value: { min: 0.24, max: 0.48 },
-                            animation: { enable: true, speed: 0.65, minimumValue: 0.16, sync: false }
+                            value: 0.35,
+                            random: true,
+                            anim: {
+                                enable: true,
+                                speed: 0.8,
+                                opacity_min: 0.14,
+                                sync: false
+                            }
                         },
-                        size: { value: { min: 12, max: 20 } },
+                        size: {
+                            value: 14,
+                            random: true,
+                            anim: {
+                                enable: true,
+                                speed: 2,
+                                size_min: 8,
+                                sync: false
+                            }
+                        },
+                        line_linked: {
+                            enable: false
+                        },
                         move: {
                             enable: true,
-                            speed: 0.85,
+                            speed: 1.1,
                             direction: 'top',
                             random: true,
-                            outModes: { default: 'out' },
-                            straight: false
+                            straight: false,
+                            out_mode: 'out',
+                            bounce: false
                         }
                     },
                     interactivity: {
+                        detect_on: 'canvas',
                         events: {
-                            onHover: { enable: false },
-                            onClick: { enable: false },
-                            resize: { enable: true }
+                            onhover: { enable: false, mode: 'repulse' },
+                            onclick: { enable: false, mode: 'push' },
+                            resize: true
+                        },
+                        modes: {
+                            repulse: { distance: 60, duration: 0.4 },
+                            push: { particles_nb: 1 }
                         }
                     },
-                    background: { color: { value: 'transparent' } }
+                    retina_detect: true
                 });
 
                 act3HeartsInitialized = true;
