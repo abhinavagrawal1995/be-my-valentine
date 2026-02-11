@@ -1,1 +1,1089 @@
-hello world
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Valentine Proposal</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/modern-normalize/3.0.1/modern-normalize.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:wght@600;700&family=Orbitron:wght@500;700;800&family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!--
+      External dependency for Act 3 confetti.
+      This is intentionally the only external library.
+    -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+    <style>
+      /*
+        ============================================================
+        GLOBAL FOUNDATION
+        ============================================================
+        Mobile-first setup with CSS custom properties to keep theme
+        values centralized and easy to tweak.
+      */
+      :root {
+        --ease-smooth: 420ms cubic-bezier(0.22, 1, 0.36, 1);
+        --ease-fast: 220ms ease;
+
+        /* Act 1 colors (Cyber Security Dark Mode) */
+        --act1-bg: #1a1a1a;
+        --act1-text: #ffffff;
+        --act1-accent: #39ff14;
+        --act1-error: #ff4d4d;
+
+        /* Act 2 colors (Modern Romance) */
+        --act2-bg: #fafafa;
+        --act2-text: #8b0000;
+        --act2-button: #f8c8dc;
+        --act2-button-text: #5c001a;
+        --act2-muted: #7a7a7a;
+
+        /* Act 3 colors (Finale) */
+        --act3-bg: #000000;
+        --act3-text: #ffffff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      body {
+        font-family: "Space Grotesk", "Segoe UI", sans-serif;
+        overflow: hidden;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+        background: #0f0f10;
+      }
+
+      button {
+        font-family: inherit;
+        cursor: pointer;
+      }
+
+      /*
+        Shared app shell to support full-screen act transitions.
+      */
+      #app {
+        position: relative;
+        width: 100%;
+        min-height: 100dvh;
+        height: 100dvh;
+        overflow: hidden;
+        transition: background-color 500ms ease;
+      }
+
+      .act {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 1.25rem;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 500ms ease;
+      }
+
+      .act.active {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      /*
+        ============================================================
+        ACT 1 STYLES
+        ============================================================
+      */
+      #act1 {
+        background:
+          radial-gradient(circle at 90% 5%, rgba(57, 255, 20, 0.12), transparent 35%),
+          radial-gradient(circle at 10% 95%, rgba(0, 255, 163, 0.08), transparent 40%),
+          linear-gradient(170deg, #101010 0%, var(--act1-bg) 60%, #151515 100%);
+        color: var(--act1-text);
+      }
+
+      .terminal-shell {
+        width: min(100%, 31rem);
+        border: 1px solid rgba(57, 255, 20, 0.35);
+        border-radius: 1rem;
+        background: linear-gradient(145deg, rgba(7, 10, 7, 0.9), rgba(0, 0, 0, 0.7));
+        box-shadow: 0 0 28px rgba(57, 255, 20, 0.16), 0 30px 50px rgba(0, 0, 0, 0.45);
+        overflow: hidden;
+        backdrop-filter: blur(7px);
+        position: relative;
+      }
+
+      .terminal-shell::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(57, 255, 20, 0.06) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(57, 255, 20, 0.06) 1px, transparent 1px);
+        background-size: 20px 20px;
+        opacity: 0.18;
+        pointer-events: none;
+      }
+
+      .terminal-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+        background: rgba(57, 255, 20, 0.08);
+        border-bottom: 1px solid rgba(57, 255, 20, 0.2);
+      }
+
+      .terminal-dot {
+        width: 0.65rem;
+        height: 0.65rem;
+        border-radius: 50%;
+        background: var(--act1-accent);
+        box-shadow: 0 0 8px rgba(57, 255, 20, 0.7);
+      }
+
+      .terminal-title {
+        font-family: "Orbitron", "Space Grotesk", sans-serif;
+        font-size: 0.75rem;
+        letter-spacing: 0.1em;
+        color: var(--act1-accent);
+        text-transform: uppercase;
+      }
+
+      .terminal-content {
+        padding: 1rem;
+        position: relative;
+        z-index: 1;
+      }
+
+      .act1-heading {
+        margin: 0 0 1rem;
+        font-family: "Orbitron", "Space Grotesk", sans-serif;
+        font-size: clamp(1rem, 3.5vw, 1.2rem);
+        letter-spacing: 0.02em;
+        line-height: 1.5;
+      }
+
+      .question-stage {
+        position: relative;
+        height: clamp(18.5rem, 58dvh, 25rem);
+        overflow: hidden;
+      }
+
+      .question-card {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+        overflow-y: auto;
+        padding-right: 0.2rem;
+        -webkit-overflow-scrolling: touch;
+        transform: translateX(100%);
+        opacity: 0;
+        transition: transform var(--ease-smooth), opacity var(--ease-smooth);
+      }
+
+      .question-card.active {
+        transform: translateX(0%);
+        opacity: 1;
+      }
+
+      .question-card.exit-left {
+        transform: translateX(-105%);
+        opacity: 0;
+      }
+
+      .question-text {
+        margin: 0;
+        font-size: 1rem;
+        line-height: 1.45;
+        color: #f2f2f2;
+        text-shadow: 0 0 10px rgba(57, 255, 20, 0.1);
+      }
+
+      .answers {
+        display: grid;
+        gap: 0.65rem;
+      }
+
+      .answer-btn {
+        width: 100%;
+        border: 1px solid rgba(57, 255, 20, 0.55);
+        background: linear-gradient(135deg, rgba(57, 255, 20, 0.16), rgba(57, 255, 20, 0.04));
+        color: var(--act1-text);
+        border-radius: 0.7rem;
+        padding: 0.75rem;
+        font-size: 0.95rem;
+        text-align: left;
+        transition:
+          transform var(--ease-fast),
+          background var(--ease-fast),
+          border-color var(--ease-fast),
+          box-shadow var(--ease-fast);
+      }
+
+      .answer-btn:active {
+        transform: scale(0.98);
+      }
+
+      .answer-btn:hover {
+        background: linear-gradient(135deg, rgba(57, 255, 20, 0.28), rgba(57, 255, 20, 0.08));
+        border-color: var(--act1-accent);
+        box-shadow: 0 0 16px rgba(57, 255, 20, 0.2);
+      }
+
+      .shake {
+        animation: shake 360ms linear;
+      }
+
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        20% {
+          transform: translateX(-8px);
+        }
+        40% {
+          transform: translateX(8px);
+        }
+        60% {
+          transform: translateX(-6px);
+        }
+        80% {
+          transform: translateX(6px);
+        }
+      }
+
+      .error-message {
+        min-height: 1.2rem;
+        margin: 0.2rem 0 0;
+        font-size: 0.9rem;
+        color: var(--act1-error);
+        opacity: 0;
+        transition: opacity 220ms ease;
+      }
+
+      .error-message.visible {
+        opacity: 1;
+      }
+
+      .auth-success {
+        margin-top: 0.8rem;
+        color: var(--act1-accent);
+        font-weight: 700;
+        text-align: center;
+        opacity: 0;
+        transition: opacity 350ms ease;
+      }
+
+      .auth-success.visible {
+        opacity: 1;
+      }
+
+      .fade-out {
+        animation: screenFade 900ms ease forwards;
+      }
+
+      @keyframes screenFade {
+        to {
+          opacity: 0;
+          filter: blur(2px);
+        }
+      }
+
+      /*
+        ============================================================
+        ACT 2 STYLES
+        ============================================================
+      */
+      #act2 {
+        position: relative;
+        overflow: hidden;
+        background: #fff4f8;
+        color: var(--act2-text);
+      }
+
+      .act2-bg-layer {
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(circle at 12% 8%, rgba(255, 186, 217, 0.5), transparent 36%),
+          radial-gradient(circle at 88% 82%, rgba(255, 205, 216, 0.45), transparent 32%),
+          linear-gradient(180deg, #fff7fb 0%, #fff2f6 42%, var(--act2-bg) 100%);
+        z-index: 0;
+      }
+
+      .act2-bg-layer::before,
+      .act2-bg-layer::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(14px);
+        pointer-events: none;
+      }
+
+      .act2-bg-layer::before {
+        width: 46vw;
+        height: 46vw;
+        min-width: 12rem;
+        min-height: 12rem;
+        top: -10%;
+        right: -12%;
+        background: radial-gradient(circle, rgba(255, 158, 194, 0.46), rgba(255, 158, 194, 0));
+        animation: drift 9s ease-in-out infinite;
+      }
+
+      .act2-bg-layer::after {
+        width: 50vw;
+        height: 50vw;
+        min-width: 12rem;
+        min-height: 12rem;
+        bottom: -14%;
+        left: -12%;
+        background: radial-gradient(circle, rgba(255, 205, 226, 0.52), rgba(255, 205, 226, 0));
+        animation: drift 11s ease-in-out infinite reverse;
+      }
+
+      .act2-inner {
+        position: relative;
+        width: min(100%, 30rem);
+        text-align: center;
+        background: rgba(255, 255, 255, 0.72);
+        border: 1px solid rgba(255, 178, 207, 0.7);
+        border-radius: 1.5rem;
+        padding: 1.4rem 1.1rem 1.2rem;
+        box-shadow: 0 20px 45px rgba(190, 52, 100, 0.15);
+        backdrop-filter: blur(9px);
+        z-index: 1;
+      }
+
+      .act2-inner::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        padding: 1px;
+        background: linear-gradient(120deg, rgba(255, 255, 255, 0.6), rgba(255, 139, 183, 0.48));
+        -webkit-mask:
+          linear-gradient(#000 0 0) content-box,
+          linear-gradient(#000 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+      }
+
+      .proposal-text {
+        margin: 0 0 1.25rem;
+        font-family: "Cormorant Garamond", "Times New Roman", serif;
+        font-size: clamp(1.7rem, 8vw, 2.4rem);
+        font-weight: 700;
+        letter-spacing: 0.01em;
+        color: #7a001f;
+        text-shadow: 0 6px 18px rgba(145, 31, 72, 0.22);
+      }
+
+      .choice-wrap {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        min-height: 3.5rem;
+      }
+
+      .pill-btn {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.9);
+        border-radius: 999px;
+        background: linear-gradient(135deg, #ffd7e8, #f8b8d3);
+        color: var(--act2-button-text);
+        font-size: 1rem;
+        font-weight: 700;
+        padding: 0.78rem 1.5rem;
+        box-shadow: 0 12px 30px rgba(125, 31, 67, 0.2);
+        transition: transform 260ms ease, opacity 280ms ease, box-shadow 280ms ease;
+      }
+
+      .pill-btn::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -130%;
+        width: 58%;
+        height: 100%;
+        background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0));
+        transform: skewX(-22deg);
+        transition: left 450ms ease;
+      }
+
+      .pill-btn:active {
+        transform: scale(0.98);
+      }
+
+      #yesBtn {
+        transform: scale(1);
+        min-width: 6.2rem;
+      }
+
+      #noBtn {
+        transform: scale(1);
+        max-width: min(78vw, 18.5rem);
+        min-width: 6.6rem;
+        line-height: 1.18;
+        white-space: normal;
+        transform-origin: center;
+      }
+
+      .pill-btn:hover {
+        box-shadow: 0 14px 35px rgba(125, 31, 67, 0.27);
+      }
+
+      .pill-btn:hover::before {
+        left: 140%;
+      }
+
+      .footnote {
+        margin-top: 1rem;
+        font-size: 0.84rem;
+        color: var(--act2-muted);
+        font-style: italic;
+        letter-spacing: 0.01em;
+      }
+
+      .yes-mega {
+        position: fixed;
+        left: 1rem;
+        right: 1rem;
+        bottom: max(1rem, env(safe-area-inset-bottom));
+        height: 46dvh;
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        background: linear-gradient(135deg, #ffd7e8, #f6a4c9);
+        border-radius: 1.5rem;
+        font-size: clamp(1.35rem, 7vw, 2rem);
+        animation: pulse 1.2s ease-in-out infinite;
+        z-index: 5;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+          box-shadow: 0 12px 26px rgba(125, 31, 67, 0.25);
+        }
+        50% {
+          transform: scale(1.03);
+          box-shadow: 0 18px 30px rgba(125, 31, 67, 0.35);
+        }
+      }
+
+      /*
+        ============================================================
+        ACT 3 STYLES
+        ============================================================
+      */
+      #act3 {
+        position: relative;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 50% 120%, rgba(255, 76, 133, 0.18), transparent 40%),
+          var(--act3-bg);
+        color: var(--act3-text);
+        justify-content: flex-end;
+        padding-bottom: max(1.2rem, env(safe-area-inset-bottom));
+      }
+
+      #act3::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image:
+          radial-gradient(circle at 20% 25%, rgba(255, 255, 255, 0.32) 0.8px, transparent 1px),
+          radial-gradient(circle at 76% 36%, rgba(255, 255, 255, 0.3) 0.8px, transparent 1px),
+          radial-gradient(circle at 44% 72%, rgba(255, 255, 255, 0.34) 0.8px, transparent 1px),
+          radial-gradient(circle at 88% 12%, rgba(255, 255, 255, 0.22) 0.8px, transparent 1px);
+        background-size: 220px 220px, 260px 260px, 240px 240px, 200px 200px;
+        opacity: 0.35;
+        animation: twinkle 3.8s ease-in-out infinite alternate;
+        pointer-events: none;
+      }
+
+      .photo-stage {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        pointer-events: none;
+      }
+
+      .polaroid {
+        position: absolute;
+        width: clamp(9rem, 34vw, 12rem);
+        aspect-ratio: 4 / 5;
+        background: #ffffff;
+        border-radius: 0.25rem;
+        padding: 0.45rem 0.45rem 1.4rem;
+        box-shadow: 0 14px 28px rgba(0, 0, 0, 0.68);
+        opacity: 0;
+        transform: scale(0.82) rotate(0deg);
+        transition: transform 420ms cubic-bezier(0.18, 0.89, 0.32, 1.28), opacity 350ms ease;
+      }
+
+      .polaroid img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 0.1rem;
+        background: #d7d7d7;
+      }
+
+      .polaroid.show {
+        opacity: 1;
+      }
+
+      .final-line {
+        width: min(100%, 42rem);
+        margin: 0;
+        text-align: center;
+        font-family: "Bebas Neue", Impact, sans-serif;
+        letter-spacing: 0.06em;
+        font-size: clamp(1rem, 4.8vw, 1.35rem);
+        line-height: 1.45;
+        text-transform: uppercase;
+        color: #f9f9f9;
+        text-shadow: 0 0 7px rgba(255, 255, 255, 0.45), 0 0 24px rgba(255, 39, 109, 0.68);
+        z-index: 10;
+        padding: 0.55rem 0.65rem;
+        border-radius: 0.65rem;
+        background: linear-gradient(180deg, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.52));
+        backdrop-filter: blur(4px);
+        animation: finalGlow 2.5s ease-in-out infinite;
+      }
+
+      @keyframes drift {
+        0%,
+        100% {
+          transform: translate3d(0, 0, 0) scale(1);
+        }
+        50% {
+          transform: translate3d(0, 10px, 0) scale(1.04);
+        }
+      }
+
+      @keyframes twinkle {
+        0% {
+          opacity: 0.2;
+        }
+        100% {
+          opacity: 0.48;
+        }
+      }
+
+      @keyframes finalGlow {
+        0%,
+        100% {
+          text-shadow: 0 0 7px rgba(255, 255, 255, 0.45), 0 0 24px rgba(255, 39, 109, 0.68);
+        }
+        50% {
+          text-shadow: 0 0 10px rgba(255, 255, 255, 0.52), 0 0 32px rgba(255, 39, 109, 0.9);
+        }
+      }
+
+      /*
+        Desktop refinement while staying mobile-first.
+      */
+      @media (min-width: 768px) {
+        .act {
+          padding: 2rem;
+        }
+
+        .terminal-content {
+          padding: 1.25rem;
+        }
+
+        .question-stage {
+          height: clamp(19rem, 55dvh, 24rem);
+        }
+
+        .act2-inner {
+          padding: 2rem 1.8rem 1.6rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="app" aria-live="polite">
+      <!-- ==========================================================
+           ACT 1 - AUTH GATE
+      =========================================================== -->
+      <section id="act1" class="act active" aria-label="Wife Authentication">
+        <div class="terminal-shell" id="authShell">
+          <div class="terminal-header">
+            <span class="terminal-dot" aria-hidden="true"></span>
+            <span class="terminal-title">Secure Wife Verification Protocol</span>
+          </div>
+
+          <div class="terminal-content">
+            <h1 class="act1-heading">
+              Wife Authentication Required. To proceed to your scheduled Valentine's Day request,
+              please verify your identity.
+            </h1>
+
+            <div class="question-stage" id="questionStage"></div>
+            <p class="error-message" id="errorMessage">Imposter Detected. Try again.</p>
+            <p class="auth-success" id="authSuccess">Authentication Successful. Access Granted.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================================
+           ACT 2 - MAIN EVENT
+      =========================================================== -->
+      <section id="act2" class="act" aria-label="Valentine Question">
+        <div class="act2-bg-layer" aria-hidden="true"></div>
+        <div class="act2-inner">
+          <h2 class="proposal-text">Will you be my Valentine?</h2>
+
+          <div class="choice-wrap">
+            <button id="yesBtn" class="pill-btn" type="button" aria-label="Yes">
+              YES
+            </button>
+            <button id="noBtn" class="pill-btn" type="button" aria-label="No">
+              NO
+            </button>
+          </div>
+
+          <p class="footnote">(Warning: Do NOT press the 'No' button under any circumstances.)</p>
+        </div>
+      </section>
+
+      <!-- ==========================================================
+           ACT 3 - FINALE
+      =========================================================== -->
+      <section id="act3" class="act" aria-label="Finale">
+        <div class="photo-stage" id="photoStage"></div>
+        <p class="final-line">
+          As promised, Valentine's Day starts when I land. Movie's already picked out and pizza is on speed dial. I Love youuuu!
+        </p>
+      </section>
+    </main>
+
+    <script>
+      /*
+        ============================================================
+        APP STATE AND STATIC CONTENT
+        ============================================================
+      */
+      const acts = {
+        act1: document.getElementById("act1"),
+        act2: document.getElementById("act2"),
+        act3: document.getElementById("act3")
+      };
+
+      const questionStage = document.getElementById("questionStage");
+      const errorMessage = document.getElementById("errorMessage");
+      const authSuccess = document.getElementById("authSuccess");
+
+      const yesBtn = document.getElementById("yesBtn");
+      const noBtn = document.getElementById("noBtn");
+      const act2Inner = document.querySelector(".act2-inner");
+      const finalLine = document.querySelector(".final-line");
+
+      const photoStage = document.getElementById("photoStage");
+
+      // Tracks Act 1 progression.
+      let currentQuestionIndex = 0;
+      let isTransitioningQuestion = false;
+
+      // Tracks Act 2 interactions.
+      let noTapCount = 0;
+      let noWasEverClicked = false;
+      let yesScale = 1;
+      let noScale = 1;
+
+      // Source question data with exact correct answers requested.
+      const authQuestions = [
+        {
+          prompt: "If we have dinner reservations at 7:00 PM, what time are we actually leaving the house?",
+          answers: [
+            "6:45 PM",
+            "7:00 PM exactly",
+            "Whenever you are finally happy with your outfit"
+          ],
+          correct: "Whenever you are finally happy with your outfit"
+        },
+        {
+          prompt: "Identity Check: What is the exact, mandatory coffee order required for you to function?",
+          answers: [
+            "A standard vanilla latte",
+            "Just black coffee",
+            "A 12-ounce cappuccino with exactly 3 shots of espresso"
+          ],
+          correct: "A 12-ounce cappuccino with exactly 3 shots of espresso"
+        },
+        {
+          prompt: "Verification: We are embarking on a road trip. What are we listening to for the duration of the drive?",
+          answers: [
+            "A carefully curated playlist of nostalgic 90s throwbacks",
+            "Today's Top 50 Global Hits",
+            "Exactly one (1) song that you are currently obsessed with, played on an endless, unbreakable loop until we arrive"
+          ],
+          correct:
+            "Exactly one (1) song that you are currently obsessed with, played on an endless, unbreakable loop until we arrive"
+        }
+      ];
+
+      // Act 2 "No" button script states.
+      const noStates = [
+        "Wait, seriously?",
+        "Are you sure? We literally live together.",
+        "Think about the pizza.",
+        "I am legally your husband."
+      ];
+
+      /*
+        ============================================================
+        UTILITY HELPERS
+        ============================================================
+      */
+
+      /**
+       * Fisher-Yates shuffle to randomize options while preserving correct mapping.
+       * @param {string[]} arr - array to shuffle
+       * @returns {string[]} shuffled copy
+       */
+      function shuffled(arr) {
+        const copy = [...arr];
+        for (let i = copy.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [copy[i], copy[j]] = [copy[j], copy[i]];
+        }
+        return copy;
+      }
+
+      /**
+       * Centralized act switcher so every transition behaves consistently.
+       * @param {"act1"|"act2"|"act3"} targetActId
+       */
+      function goToAct(targetActId) {
+        Object.keys(acts).forEach((id) => {
+          acts[id].classList.toggle("active", id === targetActId);
+        });
+      }
+
+      /**
+       * Resets and briefly reveals the Act 1 error message.
+       */
+      function showAuthError() {
+        errorMessage.classList.add("visible");
+      }
+
+      /**
+       * Hides Act 1 error text.
+       */
+      function clearAuthError() {
+        errorMessage.classList.remove("visible");
+      }
+
+      /*
+        ============================================================
+        ACT 1 LOGIC
+        ============================================================
+      */
+
+      /**
+       * Creates and returns a question card element for a given index.
+       * @param {number} questionIndex
+       * @returns {HTMLDivElement}
+       */
+      function buildQuestionCard(questionIndex) {
+        const question = authQuestions[questionIndex];
+        const card = document.createElement("div");
+        card.className = "question-card";
+        card.dataset.index = String(questionIndex);
+
+        const prompt = document.createElement("p");
+        prompt.className = "question-text";
+        prompt.textContent = question.prompt;
+        card.appendChild(prompt);
+
+        const answersWrap = document.createElement("div");
+        answersWrap.className = "answers";
+
+        // Randomize visual order only.
+        const randomizedAnswers = shuffled(question.answers);
+
+        randomizedAnswers.forEach((answerText) => {
+          const button = document.createElement("button");
+          button.className = "answer-btn";
+          button.type = "button";
+          button.textContent = answerText;
+
+          button.addEventListener("click", () => {
+            // Prevent double handling during animation.
+            if (isTransitioningQuestion) return;
+
+            if (answerText === question.correct) {
+              clearAuthError();
+              moveToNextQuestion(card);
+            } else {
+              button.classList.remove("shake");
+              void button.offsetWidth; // force reflow so shake can replay quickly
+              button.classList.add("shake");
+              showAuthError();
+            }
+          });
+
+          answersWrap.appendChild(button);
+        });
+
+        card.appendChild(answersWrap);
+        return card;
+      }
+
+      /**
+       * Handles success for one question and animates into the next.
+       * @param {HTMLElement} currentCard
+       */
+      function moveToNextQuestion(currentCard) {
+        isTransitioningQuestion = true;
+        currentCard.classList.add("exit-left");
+
+        setTimeout(() => {
+          currentCard.remove();
+          currentQuestionIndex += 1;
+
+          if (currentQuestionIndex >= authQuestions.length) {
+            finishAct1();
+            return;
+          }
+
+          const nextCard = buildQuestionCard(currentQuestionIndex);
+          questionStage.appendChild(nextCard);
+
+          requestAnimationFrame(() => {
+            nextCard.classList.add("active");
+            isTransitioningQuestion = false;
+          });
+        }, 360);
+      }
+
+      /**
+       * Final Act 1 sequence: success text, fade out, transition to Act 2.
+       */
+      function finishAct1() {
+        authSuccess.classList.add("visible");
+
+        setTimeout(() => {
+          acts.act1.classList.add("fade-out");
+        }, 500);
+
+        setTimeout(() => {
+          acts.act1.classList.remove("fade-out");
+          goToAct("act2");
+          act2Inner.classList.remove("animate__animated", "animate__fadeInUp");
+          void act2Inner.offsetWidth;
+          act2Inner.classList.add("animate__animated", "animate__fadeInUp");
+        }, 1450);
+      }
+
+      /**
+       * Initializes first question card on load.
+       */
+      function initAct1() {
+        questionStage.innerHTML = "";
+        const firstCard = buildQuestionCard(0);
+        questionStage.appendChild(firstCard);
+
+        requestAnimationFrame(() => {
+          firstCard.classList.add("active");
+        });
+      }
+
+      /*
+        ============================================================
+        ACT 2 LOGIC
+        ============================================================
+      */
+
+      /**
+       * Applies dynamic button transforms during "No" taps.
+       */
+      function applyNoTapSizing() {
+        yesBtn.style.transform = `scale(${yesScale})`;
+        noBtn.style.transform = `scale(${Math.max(0.62, noScale)})`;
+      }
+
+      /**
+       * Handles each No tap with escalating guilt-trip states.
+       */
+      function onNoClick() {
+        noWasEverClicked = true;
+        noTapCount += 1;
+
+        if (noTapCount <= 4) {
+          noScale -= 0.1;
+          yesScale += 0.16;
+          noBtn.textContent = noStates[noTapCount - 1];
+          applyNoTapSizing();
+          return;
+        }
+
+        // Tap 5 behavior.
+        noBtn.style.display = "none";
+        yesBtn.style.transform = "";
+        yesBtn.classList.add("yes-mega");
+      }
+
+      /**
+       * Handles Yes click with first-try special case.
+       */
+      function onYesClick() {
+        if (!noWasEverClicked) {
+          window.alert(
+            "Wow, first try. No hesitation. I love you too (but you totally missed a great joke on the 'No' button). Anyway..."
+          );
+        }
+
+        startAct3();
+      }
+
+      /**
+       * Wires button listeners.
+       */
+      function initAct2() {
+        yesBtn.addEventListener("click", onYesClick);
+        noBtn.addEventListener("click", onNoClick);
+      }
+
+      /*
+        ============================================================
+        ACT 3 LOGIC
+        ============================================================
+      */
+
+      /**
+       * Launches several bursts for a big confetti moment.
+       */
+      function runConfetti() {
+        if (typeof confetti !== "function") return;
+
+        const defaults = {
+          spread: 90,
+          ticks: 260,
+          gravity: 0.9,
+          startVelocity: 42,
+          scalar: 1.05,
+          zIndex: 1000
+        };
+
+        confetti({ ...defaults, particleCount: 220, origin: { x: 0.5, y: 0.62 } });
+        setTimeout(() => {
+          confetti({ ...defaults, particleCount: 120, origin: { x: 0.18, y: 0.72 } });
+          confetti({ ...defaults, particleCount: 120, origin: { x: 0.82, y: 0.72 } });
+        }, 180);
+      }
+
+      /**
+       * Creates one polaroid placeholder with controlled position and rotation.
+       * @param {string} src
+       * @param {number} leftPercent
+       * @param {number} topPercent
+       * @param {number} rotationDeg
+       * @returns {HTMLDivElement}
+       */
+      function createPolaroid(src, leftPercent, topPercent, rotationDeg) {
+        const card = document.createElement("div");
+        card.className = "polaroid";
+        card.style.left = `${leftPercent}%`;
+        card.style.top = `${topPercent}%`;
+
+        const image = document.createElement("img");
+        image.src = src;
+        image.alt = "Memory placeholder";
+
+        card.appendChild(image);
+
+        requestAnimationFrame(() => {
+          card.classList.add("show");
+          card.style.transform = `translate(-50%, -50%) rotate(${rotationDeg}deg) scale(1)`;
+        });
+
+        return card;
+      }
+
+      /**
+       * Shows three photos quickly, one after another.
+       */
+      function showPhotoBurst() {
+        photoStage.innerHTML = "";
+
+        const photoDefs = [
+          { src: "photo1.jpg", left: 34, top: 44, rotate: -11 },
+          { src: "photo2.jpg", left: 50, top: 50, rotate: 5 },
+          { src: "photo3.jpg", left: 66, top: 45, rotate: 13 }
+        ];
+
+        photoDefs.forEach((photo, index) => {
+          setTimeout(() => {
+            // Slight random offsets keep the polaroid toss feeling organic.
+            const leftJitter = (Math.random() - 0.5) * 4;
+            const topJitter = (Math.random() - 0.5) * 4;
+            const rotateJitter = (Math.random() - 0.5) * 6;
+            const card = createPolaroid(
+              photo.src,
+              photo.left + leftJitter,
+              photo.top + topJitter,
+              photo.rotate + rotateJitter
+            );
+            photoStage.appendChild(card);
+          }, 190 * index);
+        });
+      }
+
+      /**
+       * Enter Act 3 and trigger finale effects.
+       */
+      function startAct3() {
+        goToAct("act3");
+        finalLine.classList.remove("animate__animated", "animate__fadeInUp");
+        void finalLine.offsetWidth;
+        finalLine.classList.add("animate__animated", "animate__fadeInUp");
+        runConfetti();
+        showPhotoBurst();
+      }
+
+      /*
+        ============================================================
+        APP BOOTSTRAP
+        ============================================================
+      */
+      initAct1();
+      initAct2();
+    </script>
+  </body>
+</html>
