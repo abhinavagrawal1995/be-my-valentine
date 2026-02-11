@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Permanent+Marker&family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@3/tsparticles.bundle.min.js"></script>
 
     <style>
         /* ==================================================
@@ -307,6 +308,15 @@
             justify-content: center;
             align-items: center;
             padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .act3-hearts {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
         }
 
         .polaroid-stage {
@@ -319,6 +329,7 @@
             align-items: center;
             perspective: 1000px;
             overflow: visible;
+            z-index: 3;
         }
 
         .polaroid {
@@ -421,6 +432,7 @@
     </div>
 
     <div id="act3" class="act-container">
+        <div class="act3-hearts" id="act3-hearts" aria-hidden="true"></div>
         <div class="polaroid-stage">
             <div class="polaroid polaroid--hero" id="p1">
                 <img class="polaroid-photo" src="img.jpg" alt="Memory 1">
@@ -589,6 +601,7 @@
             const yesBtn = document.getElementById('yes-btn');
             const noBtn = document.getElementById('no-btn');
             const actionGroup = document.getElementById('action-group');
+            let act3HeartsInitialized = false;
             let noTapCount = 0;
 
             const noProgressionTexts = [
@@ -638,7 +651,57 @@
             /* ------------------------------------------------
                ACT 3 Logic (Finale)
                ------------------------------------------------ */
+            function initAct3Hearts() {
+                if (act3HeartsInitialized) return;
+                tsParticles.load('act3-hearts', {
+                    fullScreen: { enable: false },
+                    detectRetina: true,
+                    fpsLimit: 60,
+                    particles: {
+                        number: { value: 30, density: { enable: true, width: 800, height: 1000 } },
+                        color: { value: ['#f05d97', '#f58db2', '#f3a8c2'] },
+                        shape: {
+                            type: 'character',
+                            options: {
+                                character: {
+                                    value: ['♥'],
+                                    font: 'Verdana',
+                                    style: '',
+                                    weight: '500',
+                                    fill: true
+                                }
+                            }
+                        },
+                        opacity: {
+                            value: { min: 0.24, max: 0.48 },
+                            animation: { enable: true, speed: 0.65, minimumValue: 0.16, sync: false }
+                        },
+                        size: { value: { min: 12, max: 20 } },
+                        move: {
+                            enable: true,
+                            speed: 0.85,
+                            direction: 'top',
+                            random: true,
+                            outModes: { default: 'out' },
+                            straight: false
+                        }
+                    },
+                    interactivity: {
+                        events: {
+                            onHover: { enable: false },
+                            onClick: { enable: false },
+                            resize: { enable: true }
+                        }
+                    },
+                    background: { color: { value: 'transparent' } }
+                });
+
+                act3HeartsInitialized = true;
+            }
+
             function initFinale() {
+                initAct3Hearts();
+
                 // 1. Trigger Confetti
                 const duration = 3000;
                 const end = Date.now() + duration;
